@@ -7,7 +7,7 @@
     RunStartControl.SetStartingReward. See function header for details
 ]]
 
-ModUtil.RegisterMod("RunStartControl")
+ModUtil.Mod.Register("RunStartControl")
 
 local config = {
     Enabled = true,
@@ -77,7 +77,7 @@ function RunStartControl.ResetStartingRewards()
 end
 
 -- force reward type (starting, boon or hammer), only for first room if requested
-ModUtil.WrapBaseFunction("ChooseRoomReward", function( baseFunc, run, room, rewardStoreName, previouslyChosenRewards, args )
+ModUtil.Path.Wrap("ChooseRoomReward", function( baseFunc, run, room, rewardStoreName, previouslyChosenRewards, args )
     local startingReward = RunStartControl.StartingData.StartingReward
 
     if RunStartControl.config.Enabled and room.Name == "RoomOpening" and startingReward then
@@ -98,7 +98,7 @@ ModUtil.WrapBaseFunction("ChooseRoomReward", function( baseFunc, run, room, rewa
 end, RunStartControl)
 
 -- force boon type
-ModUtil.WrapBaseFunction("ChooseLoot", function( baseFunc, excludeLootNames, forceLootName )
+ModUtil.Path.Wrap("ChooseLoot", function( baseFunc, excludeLootNames, forceLootName )
     -- checking if it's the first boon, and we have a god to overwrite with
     if RunStartControl.config.Enabled and RunStartControl.StartingData.Boon.God then
         return baseFunc( excludeLootNames, RunStartControl.StartingData.Boon.God .. "Upgrade" )
@@ -108,7 +108,7 @@ ModUtil.WrapBaseFunction("ChooseLoot", function( baseFunc, excludeLootNames, for
 end, RunStartControl)
 
 -- force reward (if to be forced)
-ModUtil.WrapBaseFunction("SetTraitsOnLoot", function(baseFunc, lootData, args)
+ModUtil.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
     local hammerToForce = lootData.Name == "WeaponUpgrade" and RunStartControl.StartingData.Hammer.Trait
     local boonToForce = lootData.GodLoot and RunStartControl.StartingData.Boon.Trait
 
@@ -136,8 +136,8 @@ ModUtil.WrapBaseFunction("SetTraitsOnLoot", function(baseFunc, lootData, args)
     end
 end, RunStartControl)
 
-ModUtil.WrapBaseFunction("AddTraitToHero", function(baseFunc, trait)
-    if ModUtil.SafeGet(trait, ModUtil.PathToIndexArray("TraitData.Frame")) == "Hammer" then
+ModUtil.Path.Wrap("AddTraitToHero", function(baseFunc, trait)
+    if ModUtil.IndexArray.Get(trait, ModUtil.Path.IndexArray("TraitData.Frame")) == "Hammer" then
         RunStartControl.StartingData.Hammer = {
             Aspect = nil,
             Trait = nil,
